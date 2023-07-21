@@ -13,7 +13,7 @@ library(shiny)
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("Linear Modeling with Shiny Interface"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
@@ -56,7 +56,23 @@ ui <- fluidPage(
                                      All = "all"),
                          selected = "head")
         ),
+        
+        # Horizontal line ----
+            tags$hr(),
+        
+        # Action button for displaying Linear Modeling
+        actionButton("lmBut", label = "View Linear Model")
+        
+        # Linear Modeling Calculation
+        library(ggplot2)
 
+            ggplot()+
+                geom_point(aes(x = dataset$x, y = dataset$y), colour = 'red') +
+                geom_line(aes(x = dataset$x, y = predict(model, newdata = dataset)), colour = 'blue')+
+                ggtitle('Y over X') +
+                xlab('X') +
+                ylab('Y')
+        
         # Show a plot of the generated distribution
         mainPanel(
            plotOutput("distPlot"),
@@ -67,9 +83,19 @@ ui <- fluidPage(
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+last_import_timestamp <- reactiveVal("")
 
-    dataInput <- reactive({
+server <- function(input,output,session){
+  current_timestamp <- file.info(rdata_path)$mtime 
+
+  if(last_import_timestamp() != current_timestamp){
+    # use parent.frame(2) to make data available in other sessions
+    load(rdata_path, envir = parent.fame(2))
+    # update last_importet_timestamp
+    last_import_timestamp(current_timestamp) 
+  }
+    
+        dataInput <- reactive({
         req(input$file1)
         
         df <- read.csv(input$file1$datapath,
@@ -78,6 +104,33 @@ server <- function(input, output) {
                        quote = input$quote)
         return(df)
     })
+        
+
+#server <- function(input, output, session) {
+ #   load("app.R")
+
+  #  dataInput <- reactive({
+   #     req(input$file1)
+        
+    #    df <- read.csv(input$file1$datapath,
+     #                  header = input$header,
+      #                 sep = input$sep,
+       #                quote = input$quote)
+        #return(df)
+    #})
+
+
+
+function(input,output,session){
+  current_timestamp <- file.info(rdata_path)$mtime 
+
+  if(last_importet_timestamp() != current_timestamp){
+    # use parent.frame(2) to make data available in other sessions
+    load(rdata_path, envir = parent.fame(2))
+    # update last_importet_timestamp
+    last_importet_timestamp(current_timestamp) 
+  }
+    
     
     # output$distPlot <- renderPlot({
     #     # generate bins based on input$bins from ui.R
@@ -95,6 +148,7 @@ server <- function(input, output) {
     
     output$lmtPlot <- renderPlot({
         plot(dataInput()$x,dataInput()$y)
+        plot
     })
     
     
@@ -117,4 +171,7 @@ server <- function(input, output) {
 }
 
 # Run the application 
+options(shiny.autoreload = TRUE, shiny.port = 8008)
+print(getOption("shiny.autoreload")) # prints TRUE
+print(getOption("shiny.port"))       # prints 8008
 shinyApp(ui = ui, server = server)
