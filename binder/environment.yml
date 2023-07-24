@@ -5,12 +5,12 @@ channels:
   - defaults
 dependencies:
   - r-base=4.0
-  - python=3.9
   - r-dplyr
   - r-ggplot2
   - r-reshape2
   - r-tidyverse
   - r-shiny
+  - python=3.9
   - pip
   - pip:
     - pandas

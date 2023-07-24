@@ -13,7 +13,7 @@ library(shiny)
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("Linear Regression - Shiny UI"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
